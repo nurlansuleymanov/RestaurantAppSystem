@@ -44,4 +44,13 @@ public class MenuItemRepository : GenericRepository<MenuItem>, IMenuItemReposito
         return await _table
             .AnyAsync(x => x.Name == name);
     }
+
+    public async Task<bool> ExistsByNameAsync(
+    string name,
+    int? excludeId = null)
+    {
+        return await _table.AnyAsync(x =>
+            x.Name == name &&
+            (!excludeId.HasValue || x.Id != excludeId.Value));
+    }
 }

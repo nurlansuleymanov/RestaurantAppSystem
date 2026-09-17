@@ -2,7 +2,8 @@
 
 namespace RestaurantApp.DataAccess.Repositories.Interfaces;
 
-public interface IGenericRepository<T> where T : BaseEntity
+public interface IGenericRepository<T>
+    where T : BaseEntity
 {
     Task<List<T>> GetAllAsync();
 
@@ -10,9 +11,7 @@ public interface IGenericRepository<T> where T : BaseEntity
 
     Task AddAsync(T entity);
 
-    void Update(T entity);
+    Task UpdateAsync(T entity);
 
-    void Delete(T entity);
-
-    Task<int> SaveChangesAsync();
+    Task DeleteAsync(T entity);
 }

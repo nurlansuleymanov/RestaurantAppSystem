@@ -5,7 +5,8 @@ using RestaurantApp.Entity.Entities.Common;
 
 namespace RestaurantApp.DataAccess.Repositories.Implementations;
 
-public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
+public class GenericRepository<T> : IGenericRepository<T>
+    where T : BaseEntity
 {
     protected readonly AppDbContext _context;
     protected readonly DbSet<T> _table;
@@ -32,20 +33,18 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     public async Task AddAsync(T entity)
     {
         await _table.AddAsync(entity);
+        await _context.SaveChangesAsync();
     }
 
-    public void Update(T entity)
+    public async Task UpdateAsync(T entity)
     {
         _table.Update(entity);
+        await _context.SaveChangesAsync();
     }
 
-    public void Delete(T entity)
+    public async Task DeleteAsync(T entity)
     {
         _table.Remove(entity);
-    }
-
-    public async Task<int> SaveChangesAsync()
-    {
-        return await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
     }
 }
