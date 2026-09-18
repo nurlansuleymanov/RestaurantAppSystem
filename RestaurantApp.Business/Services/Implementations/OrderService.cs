@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using RestaurantApp.Business.DTOs.Orders;
+using RestaurantApp.Business.Exceptions;
 using RestaurantApp.Business.Services.Interfaces;
 using RestaurantApp.DataAccess.Repositories.Interfaces;
 using RestaurantApp.Entity.Entities;
@@ -25,7 +26,7 @@ public class OrderService : IOrderService
     public async Task AddAsync(CreateOrderDto dto)
     {
         if (dto.OrderItems is null || dto.OrderItems.Count == 0)
-            throw new Exception("Order item cannot be empty.");
+            throw new ValidationException("Order must contain at least one item.");
 
         Order order = new Order
         {
@@ -38,13 +39,13 @@ public class OrderService : IOrderService
         foreach (var itemDto in dto.OrderItems)
         {
             if (itemDto.Count <= 0)
-                throw new Exception("Count must be greater than 0.");
+                throw new ValidationException("Count must be greater than 0.");
 
             MenuItem? menuItem =
                 await _menuItemRepository.GetByIdAsync(itemDto.MenuItemId);
 
             if (menuItem is null)
-                throw new Exception(
+                throw new NotFoundException(
                     $"Menu item with Id {itemDto.MenuItemId} not found.");
 
             OrderItem orderItem = new OrderItem
@@ -70,7 +71,7 @@ public class OrderService : IOrderService
             await _orderRepository.GetByIdAsync(id);
 
         if (order is null)
-            throw new Exception("Order not found.");
+            throw new NotFoundException("Order not found.");
 
         await _orderRepository.DeleteAsync(order);
     }
@@ -99,8 +100,7 @@ public class OrderService : IOrderService
         DateTime endDate)
     {
         if (startDate > endDate)
-            throw new Exception(
-                "Start date cannot be greater than end date.");
+            throw new ValidationException("Start date cannot be greater than end date.");
 
         List<Order> orders =
             await _orderRepository
@@ -120,10 +120,10 @@ public class OrderService : IOrderService
     public async Task<List<OrderDto>> GetByPriceIntervalAsync( decimal minPrice,  decimal maxPrice)
     {
         if (minPrice < 0 || maxPrice < 0)
-            throw new Exception("Price cannot be negative.");
+            throw new ValidationException("Price cannot be negative.");
 
         if (minPrice > maxPrice)
-            throw new Exception( "Minimum price cannot be greater than maximum price.");
+            throw new ValidationException( "Minimum price cannot be greater than maximum price.");
 
         List<Order> orders = await _orderRepository
                 .GetByPriceIntervalAsync(minPrice, maxPrice);
@@ -131,11 +131,39 @@ public class OrderService : IOrderService
         return _mapper.Map<List<OrderDto>>(orders);
     }
 
-    public async Task UpdateAsync(
-        int id,
-        UpdateOrderDto dto)
+    public async Task UpdateAsync(int id, UpdateOrderDto dto)
     {
-      
-        throw new NotImplementedException();
+      if (dto.OrderItems is null || dto.OrderItems.Count == 0)
+            throw new ValidationException("Order must contain at least one item.");
+
+        Order? order =
+            await _orderRepository.GetByIdWithDetailsAsync(id);
+
+        if (order is null)
+            throw new NotFoundException("Order not found.");
+
+        order.OrderItems.Clear();
+        decimal totalAmount = 0;
+
+        foreach (var itemDto in dto.OrderItems)
+        {
+            if (itemDto.Count <= 0)
+                throw new ValidationException("Count must be greater than 0.");
+            MenuItem? menuItem = await _menuItemRepository.GetByIdAsync(itemDto.MenuItemId);
+
+            if (menuItem is null)
+                throw new NotFoundException($"Menu item with Id {itemDto.MenuItemId} not found.");
+            OrderItem orderItem = new OrderItem
+            {
+                MenuItemId = menuItem.Id,
+                MenuItem = menuItem,
+                Count = itemDto.Count
+            };
+
+            order.OrderItems.Add(orderItem);
+            totalAmount += menuItem.Price * itemDto.Count;
+        }
+        order.TotalAmount = totalAmount;
+        await _orderRepository.UpdateAsync(order);
     }
 }

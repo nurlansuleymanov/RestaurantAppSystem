@@ -34,7 +34,7 @@ public class AppMappingProfile : Profile
                 opt => opt.Ignore()
             )
             .ForMember(
-                dest => dest.Date,
+                dest => dest.Date, 
                 opt => opt.Ignore()
             );
 
@@ -43,7 +43,7 @@ public class AppMappingProfile : Profile
                 dest => dest.ItemCount,
                 opt => opt.MapFrom(
                     src => src.OrderItems.Sum(x => x.Count)
-                )
+                ) 
             );
 
         CreateMap<Order, OrderDetailDto>()
