@@ -30,15 +30,20 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 
-    public async Task<List<Order>> GetByDatesIntervalAsync( DateTime startDate, DateTime endDate)
+    public async Task<List<Order>> GetByDatesIntervalAsync(
+     DateTime startDate,
+     DateTime endDate)
     {
+        DateTime start = startDate.Date;
+        DateTime end = endDate.Date.AddDays(1);
+
         return await _table
             .AsNoTracking()
             .Include(x => x.OrderItems)
             .ThenInclude(x => x.MenuItem)
             .Where(x =>
-                x.Date >= startDate &&
-                x.Date <= endDate)
+                x.Date >= start &&
+                x.Date < end)
             .ToListAsync();
     }
 

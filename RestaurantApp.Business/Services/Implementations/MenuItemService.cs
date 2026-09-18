@@ -13,7 +13,9 @@ public class MenuItemService : IMenuItemService
     private readonly IMenuItemRepository _menuItemRepository;
     private readonly IMapper _mapper;
 
-    public MenuItemService( IMenuItemRepository menuItemRepository, IMapper mapper)
+    public MenuItemService(
+        IMenuItemRepository menuItemRepository,
+        IMapper mapper)
     {
         _menuItemRepository = menuItemRepository;
         _mapper = mapper;
@@ -22,36 +24,53 @@ public class MenuItemService : IMenuItemService
     public async Task AddAsync(CreateMenuItemDto dto)
     {
         if (string.IsNullOrWhiteSpace(dto.Name))
-            throw new ValidationException("Menu item name cannot be empty.");
+            throw new ValidationException(
+                "Menu item name cannot be empty.");
 
         if (dto.Price <= 0)
-            throw new ValidationException("Price must be greater than 0.");
+            throw new ValidationException(
+                "Price must be greater than 0.");
 
-        bool exists = await _menuItemRepository.ExistsByNameAsync(dto.Name);
+        if (!Enum.IsDefined(typeof(Category), dto.Category))
+            throw new ValidationException(
+                "Invalid category.");
+
+        bool exists =
+            await _menuItemRepository
+                .ExistsByNameAsync(dto.Name);
 
         if (exists)
-            throw new ValidationException("A menu item with this name already exists.");
+            throw new AlreadyExistsException(
+                "A menu item with this name already exists.");
 
-        MenuItem menuItem = _mapper.Map<MenuItem>(dto);
+        MenuItem menuItem =
+            _mapper.Map<MenuItem>(dto);
 
         await _menuItemRepository.AddAsync(menuItem);
     }
 
-    public async Task UpdateAsync(int id, UpdateMenuItemDto dto)
+    public async Task UpdateAsync(
+        int id,
+        UpdateMenuItemDto dto)
     {
-        MenuItem? menuItem =await _menuItemRepository.GetByIdAsync(id);
+        MenuItem? menuItem =
+            await _menuItemRepository.GetByIdAsync(id);
 
         if (menuItem is null)
-            throw new NotFoundException("Menu item not found.");
+            throw new NotFoundException(
+                "Menu item not found.");
 
         if (string.IsNullOrWhiteSpace(dto.Name))
-            throw new ValidationException("Menu item name cannot be empty.");
+            throw new ValidationException(
+                "Menu item name cannot be empty.");
 
         if (dto.Price <= 0)
-            throw new ValidationException("Price must be greater than 0.");
+            throw new ValidationException(
+                "Price must be greater than 0.");
 
-        bool exists = await _menuItemRepository
-            .ExistsByNameAsync(dto.Name, id);
+        bool exists =
+            await _menuItemRepository
+                .ExistsByNameAsync(dto.Name, id);
 
         if (exists)
             throw new AlreadyExistsException(
@@ -64,10 +83,12 @@ public class MenuItemService : IMenuItemService
 
     public async Task DeleteAsync(int id)
     {
-        MenuItem? menuItem =await _menuItemRepository.GetByIdAsync(id);
+        MenuItem? menuItem =
+            await _menuItemRepository.GetByIdAsync(id);
 
         if (menuItem is null)
-            throw new NotFoundException("Menu item not found.");
+            throw new NotFoundException(
+                "Menu item not found.");
 
         await _menuItemRepository.DeleteAsync(menuItem);
     }
@@ -94,6 +115,10 @@ public class MenuItemService : IMenuItemService
     public async Task<List<MenuItemDto>> GetByCategoryAsync(
         Category category)
     {
+        if (!Enum.IsDefined(typeof(Category), category))
+            throw new ValidationException(
+                "Invalid category.");
+
         List<MenuItem> menuItems =
             await _menuItemRepository
                 .GetByCategoryAsync(category);
@@ -101,10 +126,13 @@ public class MenuItemService : IMenuItemService
         return _mapper.Map<List<MenuItemDto>>(menuItems);
     }
 
-    public async Task<List<MenuItemDto>> GetByPriceIntervalAsync( decimal minPrice, decimal maxPrice)
+    public async Task<List<MenuItemDto>> GetByPriceIntervalAsync(
+        decimal minPrice,
+        decimal maxPrice)
     {
         if (minPrice < 0 || maxPrice < 0)
-            throw new Exception("Price cannot be negative.");
+            throw new ValidationException(
+                "Price cannot be negative.");
 
         if (minPrice > maxPrice)
             throw new ValidationException(
@@ -112,15 +140,19 @@ public class MenuItemService : IMenuItemService
 
         List<MenuItem> menuItems =
             await _menuItemRepository
-                .GetByPriceIntervalAsync(minPrice, maxPrice);
+                .GetByPriceIntervalAsync(
+                    minPrice,
+                    maxPrice);
 
         return _mapper.Map<List<MenuItemDto>>(menuItems);
     }
 
-    public async Task<List<MenuItemDto>> SearchAsync( string search)
+    public async Task<List<MenuItemDto>> SearchAsync(
+        string search)
     {
         if (string.IsNullOrWhiteSpace(search))
-            throw new ValidationException("Search value cannot be empty.");
+            throw new ValidationException(
+                "Search value cannot be empty.");
 
         List<MenuItem> menuItems =
             await _menuItemRepository

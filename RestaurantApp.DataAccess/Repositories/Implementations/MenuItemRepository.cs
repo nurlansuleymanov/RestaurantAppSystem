@@ -1,12 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RestaurantApp.DataAccess.Context;
+using RestaurantApp.DataAccess.Repositories.Implementations;
 using RestaurantApp.DataAccess.Repositories.Interfaces;
 using RestaurantApp.Entity.Entities;
 using RestaurantApp.Entity.Entities.Enums;
 
-namespace RestaurantApp.DataAccess.Repositories.Implementations;
-
-public class MenuItemRepository : GenericRepository<MenuItem>, IMenuItemRepository
+public class MenuItemRepository
+    : GenericRepository<MenuItem>, IMenuItemRepository
 {
     public MenuItemRepository(AppDbContext context)
         : base(context)
@@ -21,13 +21,14 @@ public class MenuItemRepository : GenericRepository<MenuItem>, IMenuItemReposito
             .ToListAsync();
     }
 
-    public async Task<List<MenuItem>> GetByPriceIntervalAsync( decimal minPrice,decimal maxPrice)
+    public async Task<List<MenuItem>> GetByPriceIntervalAsync(
+        decimal minPrice,
+        decimal maxPrice)
     {
         return await _table
             .AsNoTracking()
-            .Where(x =>
-                x.Price >= minPrice &&
-                x.Price <= maxPrice)
+            .Where(x => x.Price >= minPrice &&
+                        x.Price <= maxPrice)
             .ToListAsync();
     }
 
@@ -39,15 +40,9 @@ public class MenuItemRepository : GenericRepository<MenuItem>, IMenuItemReposito
             .ToListAsync();
     }
 
-    public async Task<bool> ExistsByNameAsync(string name)
-    {
-        return await _table
-            .AnyAsync(x => x.Name == name);
-    }
-
     public async Task<bool> ExistsByNameAsync(
-    string name,
-    int? excludeId = null)
+        string name,
+        int? excludeId = null)
     {
         return await _table.AnyAsync(x =>
             x.Name == name &&
