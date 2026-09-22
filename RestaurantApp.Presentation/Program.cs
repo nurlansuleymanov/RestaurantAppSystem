@@ -241,10 +241,9 @@ async Task MenuOperationsAsync()
                 case 3:
                     {
                         Console.WriteLine();
-                        Console.WriteLine("--- Delete Menu Item ---");
+                        Console.WriteLine("-- Delete Menu Item --");
 
-                        List<MenuItemDto> items =
-                            await menuItemService.GetAllAsync();
+                        List<MenuItemDto> items = await menuItemService.GetAllAsync();
 
                         PrintMenuItems(items);
 
@@ -257,8 +256,7 @@ async Task MenuOperationsAsync()
                         await menuItemService.DeleteAsync(id);
 
                         Console.WriteLine();
-                        Console.WriteLine(
-                            "Menu item deleted successfully.");
+                        Console.WriteLine(  "Menu item deleted successfully.");
 
                         break;
                     }
@@ -968,8 +966,7 @@ string ReadString(string message)
         if (!string.IsNullOrWhiteSpace(value))
             return value;
 
-        Console.WriteLine(
-            "Value cannot be empty.");
+        Console.WriteLine( "Value cannot be empty.");
     }
 }
 
@@ -1004,14 +1001,11 @@ DateTime ReadDate(string message)
     }
 }
 
-
 // ======================================================
 // PRINT ERROR
 // ======================================================
-
 void PrintError(string message)
 {
     Console.WriteLine();
-    Console.WriteLine(
-        $"Error: {message}");
+    Console.WriteLine($"Error: {message}");
 }
