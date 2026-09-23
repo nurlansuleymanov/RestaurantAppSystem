@@ -5,9 +5,12 @@ namespace RestaurantApp.Entity.Entities;
 
 public class MenuItem : AuditEntity
 {
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
+
     public decimal Price { get; set; }
+
     public Category Category { get; set; }
 
-    public OrderItem? OrderItem { get; set; }
+    public List<OrderItem> OrderItems { get; set; }
+        = new List<OrderItem>();
 }

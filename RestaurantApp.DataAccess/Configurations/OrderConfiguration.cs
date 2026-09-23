@@ -14,7 +14,7 @@ public class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
             .IsRequired();
 
         builder.HasOne(x => x.MenuItem)
-            .WithOne(x => x.OrderItem)
-            .HasForeignKey<OrderItem>(x => x.MenuItemId);
+     .WithMany(x => x.OrderItems)
+     .HasForeignKey(x => x.MenuItemId);
     }
 }
