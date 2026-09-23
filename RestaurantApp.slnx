@@ -8,5 +8,7 @@
     <Project Path="RestaurantApp.Entity/RestaurantApp.Entity.csproj" />
     <Project Path="RestaurantApp.Presentation/RestaurantApp.Presentation.csproj" />
   </Folder>
-  <Project Path="TestProject1/TestProject1.csproj" Id="cd46f400-0ef2-419b-b970-367081b4a498" />
+  <Folder Name="/tests/">
+    <Project Path="TestProject1/TestProject1.csproj" Id="cd46f400-0ef2-419b-b970-367081b4a498" />
+  </Folder>
 </Solution>
